@@ -1,0 +1,6 @@
+.stack-work/
+dist/
+*~
+.DS_Store
+
+stg/
