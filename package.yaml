@@ -1,6 +1,6 @@
 name:                holonc
 version:             0.1.0.0
-github:              "fujiy00/holon"
+github:              "fujiy00/holonc"
 license:             BSD3
 author:              "Yuuki Fujihara"
 maintainer:          "mail@fujiy.me"
@@ -11,7 +11,7 @@ extra-source-files:
 - ChangeLog.md
 
 # Metadata used when publishing your package
-synopsis:            Short description of your package
+synopsis:            Holon Compiler
 # category:            Web
 
 # To avoid duplicated efforts in documentation and dealing with the
@@ -21,7 +21,22 @@ description:         Please see the README on Github at <https://github.com/fuji
 
 dependencies:
 - base >= 4.7 && < 5
-- parsec
+- mtl
+- containers
+- extra
+- bytestring
+- text
+- data-binary-ieee754
+- ghc
+- ghc-paths
+- filepath
+- directory
+- yaml
+- data-default
+- microlens
+- microlens-mtl
+- proto-lens
+- proto-lens-protoc
 
 library:
   source-dirs: src

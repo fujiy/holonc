@@ -1,15 +1,15 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
+-- This file has been generated from package.yaml by hpack version 0.28.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 390103aa59559456a8b1cd3a81c32be7922dfe03a5234c27d698b6b4a2b11d64
+-- hash: 485ddcb753c1ed533eea957848e54955d056b702b81ee465c21195462ed382b0
 
 name:           holonc
 version:        0.1.0.0
-synopsis:       Short description of your package
+synopsis:       Holon Compiler
 description:    Please see the README on Github at <https://github.com/fujiy00/compiler#readme>
-homepage:       https://github.com/fujiy00/holon#readme
-bug-reports:    https://github.com/fujiy00/holon/issues
+homepage:       https://github.com/fujiy00/holonc#readme
+bug-reports:    https://github.com/fujiy00/holonc/issues
 author:         Yuuki Fujihara
 maintainer:     mail@fujiy.me
 copyright:      2018 Yuuki Fujihara
@@ -17,24 +17,49 @@ license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
-
 extra-source-files:
     ChangeLog.md
     README.md
 
 source-repository head
   type: git
-  location: https://github.com/fujiy00/holon
+  location: https://github.com/fujiy00/holonc
 
 library
   hs-source-dirs:
       src
   build-depends:
       base >=4.7 && <5
-    , parsec
+    , bytestring
+    , containers
+    , data-binary-ieee754
+    , data-default
+    , directory
+    , extra
+    , filepath
+    , ghc
+    , ghc-paths
+    , microlens
+    , microlens-mtl
+    , mtl
+    , proto-lens
+    , proto-lens-protoc
+    , text
+    , yaml
   exposed-modules:
-      STG.Parser
-      STG.STG
+      Holon.Compiler.CodeGen
+      Holon.Compiler.Main
+      Holon.Compiler.StgLift
+      Proto.App
+      Proto.App_Fields
+      Proto.Expr
+      Proto.Expr_Fields
+      Proto.Instr
+      Proto.Instr_Fields
+      Proto.Module
+      Proto.Module_Fields
+      Proto.Prim
+      Proto.Prim_Fields
   other-modules:
       Paths_holonc
   default-language: Haskell2010
@@ -46,8 +71,23 @@ executable holonc
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
+    , containers
+    , data-binary-ieee754
+    , data-default
+    , directory
+    , extra
+    , filepath
+    , ghc
+    , ghc-paths
     , holonc
-    , parsec
+    , microlens
+    , microlens-mtl
+    , mtl
+    , proto-lens
+    , proto-lens-protoc
+    , text
+    , yaml
   other-modules:
       Paths_holonc
   default-language: Haskell2010
@@ -60,8 +100,23 @@ test-suite holonc-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
+    , containers
+    , data-binary-ieee754
+    , data-default
+    , directory
+    , extra
+    , filepath
+    , ghc
+    , ghc-paths
     , holonc
-    , parsec
+    , microlens
+    , microlens-mtl
+    , mtl
+    , proto-lens
+    , proto-lens-protoc
+    , text
+    , yaml
   other-modules:
       Paths_holonc
   default-language: Haskell2010

@@ -3,4 +3,7 @@ dist/
 *~
 .DS_Store
 
-stg/
+/stg/
+/lib/
+
+.atom-build.yaml

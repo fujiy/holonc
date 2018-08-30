@@ -1,9 +1,9 @@
+
 module Main where
 
-import STG.Parser
+import Holon.Compiler.Main
 
 main :: IO ()
-main = do
-    input <- getLine
+main = defaultMain
     -- print $ parseTest input
-    putStrLn $ parseTest input
+    -- putStrLn $ parseTest input
