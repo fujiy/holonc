@@ -41,6 +41,7 @@ defaultMain = GHC.defaultErrorHandler DynFlags.defaultFatalMessager DynFlags.def
         package = args !! 0
         version = args !! 1
         target  = args !! 2
+        unitid  = package ++ "-" ++ version
     GHC.runGhc (Just ld) $ do
         liftIO $ print libdir
         dflags <- GHC.getSessionDynFlags
@@ -89,7 +90,7 @@ defaultMain = GHC.defaultErrorHandler DynFlags.defaultFatalMessager DynFlags.def
             -- let stg = CoreToStg.coreToStg dflags (cg_module tguts) (cg_binds tguts)
             -- dmods <-
             let (stg, _) = CoreToStg.coreToStg dflags (cg_module cguts) prep
-                path = ld </> package ++ "-" ++ version </> Module.moduleNameSlashes mn ++ ".hi"
+                path = ld </> unitid </> Module.moduleNameSlashes mn ++ ".hi"
                 -- hmi      = HomeModInfo iface md Nothing
 
             printOutputable stg
@@ -115,16 +116,16 @@ defaultMain = GHC.defaultErrorHandler DynFlags.defaultFatalMessager DynFlags.def
 
         eps <- liftIO $ hscEPS env
 
-        let r = runExcept $ codeGen eps ms
+        let r = runExcept $ codeGen (package, version) eps ms
 
         liftIO $ either
             (panic . show)
-            (mapM $ \(m, hm) -> do
-                putStrLn $ showMessage hm
+            (\app -> do
+                putStrLn $ showMessage app
                 BS.writeFile
-                    (ld </> package ++ "-" ++ version
-                        </> Module.moduleNameSlashes (Module.moduleName m) ++ ".ho")
-                    $ encodeMessage hm
+                    (ld </> unitid
+                        </> package ++ ".holon")
+                    $ encodeMessage app
             ) r
 
         return ()

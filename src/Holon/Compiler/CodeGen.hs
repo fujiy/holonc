@@ -1,4 +1,4 @@
-{-# LANGUAGE LambdaCase, TupleSections #-}
+{-# LANGUAGE LambdaCase, TupleSections, BinaryLiterals #-}
 
 
 module Holon.Compiler.CodeGen where
@@ -40,6 +40,7 @@ import Data.ProtoLens.TextFormat
 
 import Util
 import Avail
+import FastString
 import HscTypes
 import StgSyn
 import Module
@@ -57,6 +58,7 @@ import TyCon
 import TysWiredIn
 import IdInfo
 import PrimOp
+import Packages
 import IfaceSyn
 import UniqDFM
 import InstEnv
@@ -187,34 +189,56 @@ genBlock gen =
         return (a, vs)
 
 
-codeGen :: ExternalPackageState -> [(ModIface, [StgTopBinding])]
-         -> Except GenError [(Module, M.HObject)]
-codeGen eps mods =
+codeGen :: (String, String) -> ExternalPackageState -> [(ModIface, [StgTopBinding])]
+         -> Except GenError M.Package
+codeGen (pkg, ver) eps mods = do
     let home :: GenEnv
-        home = Map.fromList $ map (\(x, (mi, _)) ->
+        home = Map.fromList $ map (\((mi, _), x) ->
                 (mi_module mi, (0, x, Map.fromList $ zip (ifaceExports mi) [0..])))
-             $ zip [0..] mods
+             $ zip mods [0..]
 
-        prm  :: Map UnitId Pr     -- Package references
-        mrm  :: Map ModuleName Mr -- Module references
-        ((prm, mrm), ml) = mapAccumL (\(pm, mm) mi ->
-                let mo         = mi_module mi
-                    (mpr, pm') = Map.insertLookupWithKey (\_ _ a -> a)
-                                 (moduleUnitId mo) (msize pm) pm
-                    (mmr, mm') = Map.insertLookupWithKey (\_ _ a -> a)
-                                 (moduleName mo) (msize mm) mm
-                    pr         = fromMaybe (msize pm) mpr
-                    mr         = fromMaybe (msize mm) mmr
-                    exps       = Map.fromList $ zip
-                                 (concatMap availNames $ mi_exports mi) [0..]
-                in  ((pm, mm), (mo, (pr, mr, exps))))
-               ( Map.singleton (moduleUnitId . mi_module . fst $ head mods) 0
-                           :: Map UnitId Pr
-               , Map.empty :: Map ModuleName Mr )
-             $ moduleEnvElts (eps_PIT eps)
+        depm :: Map UnitId Pr
+        depm = Map.fromListWith (flip const) $ flip zip [1..]
+             $ map (DefiniteUnitId . DefUnitId . fst)
+             $ concatMap (dep_pkgs . mi_deps . fst) mods
+
+        deps :: [String]
+        deps = map (showSDocUnsafe . ppr . fst)
+             . sortBy (\(a,_) (b,_) -> compare a b)
+             $ Map.toList $ traceShow depm depm
+
+        pmods :: Map UnitId (Map ModuleName Mr)
+        pmods = Map.map (Map.fromList . flip zip [0..])
+              . Map.fromListWith (++)
+              . map (\mi -> let mo = mi_module mi
+                            in  (moduleUnitId mo, [moduleName mo]))
+              $ moduleEnvElts (eps_PIT eps)
 
         ext  :: GenEnv
-        ext  = Map.fromList ml
+        ext  = foldr (\mi ge ->
+                let mo = mi_module mi
+                    pr = depm Map.! moduleUnitId mo
+                    mr = pmods Map.! moduleUnitId mo Map.! moduleName mo
+                    exps = Map.fromList . flip zip [0..]
+                         . concatMap availNames $ mi_exports mi
+                in  Map.insert mo (pr, mr, exps) ge )
+               Map.empty
+             $ moduleEnvElts (eps_PIT eps)
+        -- ((_, _), ml) = mapAccumL (\(pm, mm) mi ->
+        --         let mo         = mi_module mi
+        --             (mpr, pm') = Map.insertLookupWithKey (\_ _ a -> a)
+        --                          (moduleUnitId mo) (msize pm) pm
+        --             (mmr, mm') = Map.insertLookupWithKey (\_ _ a -> a)
+        --                          (moduleName mo) (msize mm) mm
+        --             pr         = fromMaybe (msize pm) mpr
+        --             mr         = fromMaybe (msize mm) mmr
+        --             exps       = Map.fromList $ zip
+        --                          (concatMap availNames $ mi_exports mi) [0..]
+        --         in  ((pm, mm), (mo, (pr, mr, exps))))
+        --        ( Map.singleton (moduleUnitId . mi_module . fst $ head mods) 0
+        --                    :: Map UnitId Pr
+        --        , Map.empty :: Map ModuleName Mr )
+        --      $ moduleEnvElts (eps_PIT eps)
 
         genv :: GenEnv
         genv = foldl' (\mods ci ->
@@ -224,7 +248,27 @@ codeGen eps mods =
                     (nameModule n) mods)
                (home `Map.union` ext)
              $ instEnvElts $ eps_inst_env eps
-    in  mapM (uncurry $ genModule genv) mods
+
+        (mj, mn, rv, bi) = splitVersion ver
+
+    ms <- mapM (uncurry $ genModule genv) mods
+    return $ def
+        & M.magic    .~ 0x0000004E4F4C4F48
+        & M.name     .~ Text.pack pkg
+        & M.major    .~ fi mj
+        & M.minor    .~ fi mn
+        & M.revision .~ fi rv
+        & M.build    .~ fi bi
+        & M.deps     .~ map Text.pack deps
+        & M.modules  .~ ms
+
+splitVersion :: String -> (Int, Int, Int, Int)
+splitVersion s = let [x,y,z,w] = map read $ go s in (x,y,z,w)
+    where
+        go s = case dropWhile (== '.') s of
+                "" -> []
+                s' -> let (w, s'') = break (== '.') s'
+                      in w : go s''
 
 depModsPkgs :: Dependencies -> (Map UnitId Pr, Map ModuleName Mr)
 depModsPkgs deps =
@@ -233,7 +277,7 @@ depModsPkgs deps =
     , Map.fromList $ zip
         (map fst $ dep_mods deps) [1..] )
 
-genModule :: GenEnv -> ModIface -> [StgTopBinding] -> Except GenError (Module, M.HObject)
+genModule :: GenEnv -> ModIface -> [StgTopBinding] -> Except GenError M.Module
 genModule gem mi bs = do
     let ls    :: [(Srt, Var, StgRhs, HasCode)] -- Lifted Stgs
         ls    = concatMap lambdaLift bs
@@ -285,7 +329,7 @@ genModule gem mi bs = do
 
     (es, cs) <- runReaderT (foldM goGen ([], []) ls) ge
 
-    return (mi_module mi, def
+    return $ def
         -- $ traceShow ge $ traceShow (exps, cafs, funcs)
             -- & M.name        .~ Text.pack (moduleNameString . moduleName $ mg_module mg)
         & M.name        .~ Text.pack (moduleNameString (moduleName $ mi_module mi))
@@ -294,7 +338,7 @@ genModule gem mi bs = do
         & M.cafExports  .~ cafexps
         & M.codeExports .~ codeexps
         & M.cafs        .~ reverse es
-        & M.text        .~ reverse cs)
+        & M.text        .~ reverse cs
     where
         goGen :: ([E.Expr], [I.Func]) -> (Srt, Var, StgRhs, HasCode) -> GlobalGen ([E.Expr], [I.Func])
         goGen (es, cs) (srt, x, rhs, hc) = do

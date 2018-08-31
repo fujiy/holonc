@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0f2d15343406159bac9bb7c8a3aa82581d0275d4e801dad78e3b0aeca5f10c6f
+-- hash: 29d1152ba0fde7b7d1a2839c77bab257bc17ddc34932fbed1f35f43be62f6f2d
 
 name:           holonc
 version:        0.1.0.0
@@ -40,7 +40,6 @@ library
       Proto.Prim_Fields
   hs-source-dirs:
       src
-      proto/haskell
   build-depends:
       base >=4.7 && <5
     , bytestring
