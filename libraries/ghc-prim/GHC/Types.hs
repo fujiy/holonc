@@ -25,7 +25,7 @@ module GHC.Types (
         --    Type equality:  (~)( Eq# )
 
         Bool(..), Char(..), Int(..),
-        -- isTrue#,
+        isTrue#,
         -- TYPE, RuntimeRep(..), Type, Constraint,
         --   -- The historical type * should ideally be written as
         --   -- `type *`, without the parentheses. But that's a true
