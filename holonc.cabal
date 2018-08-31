@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 106cb9b962d3b2c37931a4b1fe0ae2c3e312eeb036eebe0a6dd04b06483dcaa4
+-- hash: 0f2d15343406159bac9bb7c8a3aa82581d0275d4e801dad78e3b0aeca5f10c6f
 
 name:           holonc
 version:        0.1.0.0
@@ -30,8 +30,6 @@ library
       Holon.Compiler.CodeGen
       Holon.Compiler.Main
       Holon.Compiler.StgLift
-      Proto.App
-      Proto.App_Fields
       Proto.Expr
       Proto.Expr_Fields
       Proto.Instr
