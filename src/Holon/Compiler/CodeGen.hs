@@ -268,12 +268,13 @@ genModule gem mi bs = do
 
     -- Import symbols
     imps <- Map.fromList . zip [0..] <$> forM (Map.keys exts) (\v -> do
-        let mo = nameModule $ varName v
+        let n  = varName v
+            mo = nameModule n
         (pr, mr, m) <- maybe (throwError . UnknownPackage $ showO $ moduleUnitId mo)
                        return $ gem Map.!? mo
-        x           <- maybe (throwError . UnboundExternalName $ showO v)
-                       return $ m Map.!? varName v
-        return $ M.Symbol (fi pr) (fi mr) x [])
+        x           <- maybe (throwError . UnboundExternalName $ showO n)
+                       return $ m Map.!? n
+        return $ M.Symbol (fi pr) (fi mr) x (Text.pack . occNameString $ occName n) [])
 
     (es, cs) <- runReaderT (foldM goGen ([], []) ls) ge
 
