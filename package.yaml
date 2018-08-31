@@ -39,7 +39,9 @@ dependencies:
 - proto-lens-protoc
 
 library:
-  source-dirs: src
+  source-dirs:
+  - src
+  - proto/haskell
 
 executables:
   holonc:

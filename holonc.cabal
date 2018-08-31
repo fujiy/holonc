@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 485ddcb753c1ed533eea957848e54955d056b702b81ee465c21195462ed382b0
+-- hash: 106cb9b962d3b2c37931a4b1fe0ae2c3e312eeb036eebe0a6dd04b06483dcaa4
 
 name:           holonc
 version:        0.1.0.0
@@ -26,8 +26,23 @@ source-repository head
   location: https://github.com/fujiy00/holonc
 
 library
+  exposed-modules:
+      Holon.Compiler.CodeGen
+      Holon.Compiler.Main
+      Holon.Compiler.StgLift
+      Proto.App
+      Proto.App_Fields
+      Proto.Expr
+      Proto.Expr_Fields
+      Proto.Instr
+      Proto.Instr_Fields
+      Proto.Module
+      Proto.Module_Fields
+      Proto.Prim
+      Proto.Prim_Fields
   hs-source-dirs:
       src
+      proto/haskell
   build-depends:
       base >=4.7 && <5
     , bytestring
@@ -46,20 +61,6 @@ library
     , proto-lens-protoc
     , text
     , yaml
-  exposed-modules:
-      Holon.Compiler.CodeGen
-      Holon.Compiler.Main
-      Holon.Compiler.StgLift
-      Proto.App
-      Proto.App_Fields
-      Proto.Expr
-      Proto.Expr_Fields
-      Proto.Instr
-      Proto.Instr_Fields
-      Proto.Module
-      Proto.Module_Fields
-      Proto.Prim
-      Proto.Prim_Fields
   other-modules:
       Paths_holonc
   default-language: Haskell2010
