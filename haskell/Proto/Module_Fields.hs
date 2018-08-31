@@ -34,6 +34,12 @@ import qualified Data.ProtoLens.Reexport.Text.Read as Text.Read
 import qualified Proto.Expr
 import qualified Proto.Instr
 
+build ::
+      forall f s t a b . (Lens.Labels.HasLens f s t "build" a b) =>
+        Lens.Family2.LensLike f s t a b
+build
+  = Lens.Labels.lensOf
+      ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "build")
 cafExports ::
            forall f s t a b . (Lens.Labels.HasLens f s t "cafExports" a b) =>
              Lens.Family2.LensLike f s t a b
@@ -52,6 +58,12 @@ codeExports ::
 codeExports
   = Lens.Labels.lensOf
       ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "codeExports")
+deps ::
+     forall f s t a b . (Lens.Labels.HasLens f s t "deps" a b) =>
+       Lens.Family2.LensLike f s t a b
+deps
+  = Lens.Labels.lensOf
+      ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "deps")
 entryPoint ::
            forall f s t a b . (Lens.Labels.HasLens f s t "entryPoint" a b) =>
              Lens.Family2.LensLike f s t a b
@@ -82,32 +94,42 @@ localOffset ::
 localOffset
   = Lens.Labels.lensOf
       ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "localOffset")
-majorVersion ::
-             forall f s t a b .
-               (Lens.Labels.HasLens f s t "majorVersion" a b) =>
-               Lens.Family2.LensLike f s t a b
-majorVersion
+magic ::
+      forall f s t a b . (Lens.Labels.HasLens f s t "magic" a b) =>
+        Lens.Family2.LensLike f s t a b
+magic
   = Lens.Labels.lensOf
-      ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "majorVersion")
+      ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "magic")
+major ::
+      forall f s t a b . (Lens.Labels.HasLens f s t "major" a b) =>
+        Lens.Family2.LensLike f s t a b
+major
+  = Lens.Labels.lensOf
+      ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "major")
 maybe'value ::
             forall f s t a b . (Lens.Labels.HasLens f s t "maybe'value" a b) =>
               Lens.Family2.LensLike f s t a b
 maybe'value
   = Lens.Labels.lensOf
       ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "maybe'value")
-minorVersion ::
-             forall f s t a b .
-               (Lens.Labels.HasLens f s t "minorVersion" a b) =>
-               Lens.Family2.LensLike f s t a b
-minorVersion
+minor ::
+      forall f s t a b . (Lens.Labels.HasLens f s t "minor" a b) =>
+        Lens.Family2.LensLike f s t a b
+minor
   = Lens.Labels.lensOf
-      ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "minorVersion")
+      ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "minor")
 module' ::
         forall f s t a b . (Lens.Labels.HasLens f s t "module'" a b) =>
           Lens.Family2.LensLike f s t a b
 module'
   = Lens.Labels.lensOf
       ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "module'")
+modules ::
+        forall f s t a b . (Lens.Labels.HasLens f s t "modules" a b) =>
+          Lens.Family2.LensLike f s t a b
+modules
+  = Lens.Labels.lensOf
+      ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "modules")
 name ::
      forall f s t a b . (Lens.Labels.HasLens f s t "name" a b) =>
        Lens.Family2.LensLike f s t a b
@@ -120,6 +142,12 @@ package ::
 package
   = Lens.Labels.lensOf
       ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "package")
+revision ::
+         forall f s t a b . (Lens.Labels.HasLens f s t "revision" a b) =>
+           Lens.Family2.LensLike f s t a b
+revision
+  = Lens.Labels.lensOf
+      ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "revision")
 text ::
      forall f s t a b . (Lens.Labels.HasLens f s t "text" a b) =>
        Lens.Family2.LensLike f s t a b

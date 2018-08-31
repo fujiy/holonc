@@ -3,28 +3,39 @@ syntax = "proto3";
 import "expr.proto";
 import "instr.proto";
 
-// Holon Object File
-message HObject {
+// Package File
+message Package {
+    fixed64 magic = 1;
+    string  name  = 2;
+
+    // version
+    uint32  major    = 3;
+    uint32  minor    = 4;
+    uint32  revision = 5;
+    uint32  build    = 6;
+
+    repeated string deps    = 10; // Dependent packages
+    repeated Module modules = 11;
+}
+
+// Holon Module
+message Module {
     string name = 1;
-    int64  major_version = 2;
-    int64  minor_version = 3;
 
-    fixed64 entry_point  = 5;
-    fixed64 local_offset = 6;
+    fixed64 entry_point  = 2;
+    fixed64 local_offset = 3;
 
-    map<fixed64, Symbol> imports  = 10;
-    repeated fixed64 caf_exports  = 11;
-    repeated fixed64 code_exports = 12;
+    map<fixed64, Symbol> imports  = 8;
+    repeated fixed64 caf_exports  = 9;
+    repeated fixed64 code_exports = 10;
 
-    // fixed64 caf_num   = 3;
-    // fixed64 table_num = 4;
-    repeated Expr cafs = 13;
-    repeated Func text = 14;
+    repeated Expr cafs = 11;
+    repeated Func text = 12;
 }
 
 message Symbol {
-    int32   package = 1;
-    int32   module  = 2;
+    uint32  package = 1;
+    uint32  module  = 2;
     fixed64 local   = 3;
     string  name    = 4;
 }
