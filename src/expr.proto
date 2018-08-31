@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+message Expr {
+    ExprType         type     = 1;
+    uint32           p_num    = 2; // pointer number
+    uint32           tag      = 3; // Data constructor tag (optional)
+    repeated fixed64 payloads = 4;
+}
+
+enum ExprType {
+    INVALID = 0;
+    INDIR   = 1; // Indirection
+    CONSTR  = 2; // Data constructor
+    FUNC    = 4; // Function object
+    THUNK_F = 6; // Thunk has a function
+    THUNK_C = 7; // Thunk has a closure
+    PAPPLY  = 8; // Partial apply to a function
+    BOTTOM  = 9; // ⊥ (error)
+}

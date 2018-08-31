@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "expr.proto";
+// import "code.proto";
+
+// Holon Application File
+message AppFile {
+    fixed32 magic_number = 1;
+    App     app = 2;
+}
+
+// Holon Application
+message App {
+    fixed64 id      = 1;
+    fixed64 version = 2;
+    string  name    = 3;
+
+    // repeated InfoTable info_tables = 9;
+    repeated Expr      cafs        = 10;
+}
