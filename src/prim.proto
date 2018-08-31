@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+
+enum HPrimOp {
+    PNOP = 0;
+
+    // Int#
+    
+    INTADD = 8;  // (+#) :: Int# -> Int# -> Int#
+    INTSUB = 9;  // (-#) :: Int# -> Int# -> Int#
+    INTMUL = 10; // (*#) :: Int# -> Int# -> Int#
+    INTNEG = 19; // negateInt# :: Int# -> Int#
+    INTGT  = 22; // (>#)  :: Int# -> Int# -> Int#
+    INTGE  = 23; // (>=#) :: Int# -> Int# -> Int#
+    INTEQ  = 24; // (==#) :: Int# -> Int# -> Int#
+    INTNE  = 25; // (/=#) :: Int# -> Int# -> Int#
+    INTLT  = 26; // (<#)  :: Int# -> Int# -> Int#
+    INTLE  = 27; // (<=#) :: Int# -> Int# -> Int#
+
+    DATATOTAG = 100; // dataToTag# :: a -> Int#
+    TAGTOENUM = 101; // tagToEnum# :: Int# -> a
+}
