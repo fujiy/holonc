@@ -153,6 +153,13 @@ addLocal vs = modify $ \(m, xs:xss) ->
 localRef :: Var -> LocalGen Sr
 localRef n = gets (Map.lookup n . fst)
          >>= maybe (throwError . UnboundLocalName $ showO n) return
+         -- >>= maybe (do
+         --     ge <- ask
+         --     le <- get
+         --     traceShow ge return ()
+         --     traceShow le return ()
+         --     traceShow n return ()
+         --     throwError . UnboundLocalName $ showO n) return
 
 cafRef :: Var -> GlobalGen Ref
 cafRef x = (asks (Map.lookup x . gcafs)

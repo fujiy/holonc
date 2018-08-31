@@ -56,7 +56,7 @@ liftBinding = \case
             || ta `elem` [kindRepTyConName]
             then return []
             else (: []) <$> liftRhs x rhs
-    StgRec bs -> localBinds (map fst bs) $ mapM (uncurry liftRhs) bs
+    StgRec bs -> mapM (uncurry liftRhs) bs
 
 liftRhs :: Var -> StgRhs -> Lifter (Srt, Var, StgRhs, HasCode)
 liftRhs x rhs = case rhs of

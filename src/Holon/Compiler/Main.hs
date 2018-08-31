@@ -82,7 +82,7 @@ defaultMain = GHC.defaultErrorHandler DynFlags.defaultFatalMessager DynFlags.def
             -- printOutputable $ cg_binds dmod
             -- printOutputable $ cg_binds tguts
 
-            mapM_ printOutputable $ md_exports md
+            -- mapM_ printOutputable $ md_exports md
 
             -- printOutputable prep
 
