@@ -187,8 +187,9 @@ codeGen eps mods =
         home = Map.fromList $ map (\(x, (mi, _)) ->
                 (mi_module mi, (0, x, Map.fromList $ zip (ifaceExports mi) [0..])))
              $ zip [0..] mods
-        ext  :: GenEnv
-        ext  = Map.fromList ml
+
+        prm  :: Map UnitId Pr     -- Package references
+        mrm  :: Map ModuleName Mr -- Module references
         ((prm, mrm), ml) = mapAccumL (\(pm, mm) mi ->
                 let mo         = mi_module mi
                     (mpr, pm') = Map.insertLookupWithKey (\_ _ a -> a)
@@ -200,9 +201,15 @@ codeGen eps mods =
                     exps       = Map.fromList $ zip
                                  (concatMap availNames $ mi_exports mi) [0..]
                 in  ((pm, mm), (mo, (pr, mr, exps))))
-               ( Map.singleton (moduleUnitId . mi_module . fst $ head mods) 0 :: Map UnitId Pr
+               ( Map.singleton (moduleUnitId . mi_module . fst $ head mods) 0
+                           :: Map UnitId Pr
                , Map.empty :: Map ModuleName Mr )
              $ moduleEnvElts (eps_PIT eps)
+
+        ext  :: GenEnv
+        ext  = Map.fromList ml
+
+        genv :: GenEnv
         genv = foldl' (\mods ci ->
                 let n  = varName $ is_dfun ci
                 in  Map.update (\(pr, mr, m) ->
@@ -221,33 +228,55 @@ depModsPkgs deps =
 
 genModule :: GenEnv -> ModIface -> [StgTopBinding] -> Except GenError (Module, M.HObject)
 genModule gem mi bs = do
-    let ls    = concatMap lambdaLift bs
+    let ls    :: [(Srt, Var, StgRhs, HasCode)] -- Lifted Stgs
+        ls    = concatMap lambdaLift bs
+
+        srs   :: [Var]                         -- static references
         srs   = concatMap (\(a,_,_,_) -> a) ls
+
+        exps  :: [Name]                        -- Export names
+        exps  = ifaceExports mi
+
+        exts  :: Map Var Ref                   -- External names
         exts  = fst $ foldr (\s (m, x) ->
                 let (ms, m') = Map.insertLookupWithKey (\_ a _ -> a) s x m
                     mn       = nameModule_maybe (varName s)
                 in  if isJust mn && mn /= Just (mi_module mi) && isNothing ms
                     then (m', x + 1) else (m, x))
-                (Map.empty, 0) srs
-        cafs  = Map.fromList $ zip (map (\(_,x,_,_) -> x) ls)
+                (Map.empty, 0)
+                $ srs ++ map (\n -> mkGlobalVar VanillaId n anyTy vanillaIdInfo) exps
+
+        cafs  :: Map Var Ref                   -- Local constant exprs
+        cafs  = Map.union exts $
+                Map.fromList $ zip (map (\(_,x,_,_) -> x) ls)
                 [msize exts..]
-        funcs = Map.fromList $ zip (foldr (\(_,x,_,hc) cs ->
+
+        funcs :: Map Var CP                    -- Local Functions
+        funcs = Map.union exts $
+                Map.fromList $ zip (foldr (\(_,x,_,hc) cs ->
                     if hc then x:cs else cs) [] ls)
                 [msize exts..]
-        ge    = GE (Map.union exts cafs) (Map.union exts funcs)
-        exps  = ifaceExports mi
-        -- exps  = concatMap availNames (mi_exports mi)
-        --      ++ map ifDFun (mi_insts mi)
+
+        ge    :: GlobalEnv
+        ge    = GE cafs funcs
+
+        cafexps  :: [Ref]
         cafexps  = map (flip (Map.findWithDefault 99001) $ Map.mapKeys varName cafs)  exps
+
+        codeexps :: [CP]
         codeexps = map (flip (Map.findWithDefault 99003) $ Map.mapKeys varName funcs) exps
+
+    -- Import symbols
     imps <- Map.fromList . zip [0..] <$> forM (Map.keys exts) (\v -> do
         let mo = nameModule $ varName v
-        (pr, mr, m) <- maybe (throwError . UnknownPackage $ showO $ moduleUnitId mo) return
-                     $ gem Map.!? mo
-        x           <- maybe (throwError . UnboundExternalName $ showO v) return
-                     $ m Map.!? varName v
+        (pr, mr, m) <- maybe (throwError . UnknownPackage $ showO $ moduleUnitId mo)
+                       return $ gem Map.!? mo
+        x           <- maybe (throwError . UnboundExternalName $ showO v)
+                       return $ m Map.!? varName v
         return $ M.Symbol (fi pr) (fi mr) x [])
+
     (es, cs) <- runReaderT (foldM goGen ([], []) ls) ge
+
     return (mi_module mi, def
         -- $ traceShow ge $ traceShow (exps, cafs, funcs)
             -- & M.name        .~ Text.pack (moduleNameString . moduleName $ mg_module mg)
