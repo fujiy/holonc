@@ -3,14 +3,6 @@
 
 ## Table of Contents
 
-- [app.proto](#app.proto)
-    - [App](#.App)
-    - [AppFile](#.AppFile)
-  
-  
-  
-  
-
 - [expr.proto](#expr.proto)
     - [Expr](#.Expr)
   
@@ -30,8 +22,9 @@
   
 
 - [module.proto](#module.proto)
-    - [HObject](#.HObject)
-    - [HObject.ImportsEntry](#.HObject.ImportsEntry)
+    - [Module](#.Module)
+    - [Module.ImportsEntry](#.Module.ImportsEntry)
+    - [Package](#.Package)
     - [Symbol](#.Symbol)
   
   
@@ -46,56 +39,6 @@
   
 
 - [Scalar Value Types](#scalar-value-types)
-
-
-
-<a name="app.proto"/>
-<p align="right"><a href="#top">Top</a></p>
-
-## app.proto
-
-
-
-<a name=".App"/>
-
-### App
-Holon Application
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| id | [fixed64](#fixed64) |  |  |
-| version | [fixed64](#fixed64) |  |  |
-| name | [string](#string) |  |  |
-| cafs | [Expr](#Expr) | repeated | repeated InfoTable info_tables = 9; |
-
-
-
-
-
-
-<a name=".AppFile"/>
-
-### AppFile
-Holon Application File
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| magic_number | [fixed32](#fixed32) |  |  |
-| app | [App](#App) |  |  |
-
-
-
-
-
- 
-
- 
-
- 
-
- 
 
 
 
@@ -177,13 +120,7 @@ Holon Application File
 <a name=".Func"/>
 
 ### Func
-sr: 2 byte. Stack relative address
-st: 8 byte. Static object pointer
-cp: 8 byte. Code pointer
-cr: 2 byte. Code offset
-k:  1 byte. Data constructor kind
-po: 1 byte. PrimOp
-bo: 2 byte. Block offset
+
 
 
 | Field | Type | Label | Description |
@@ -260,23 +197,21 @@ bo: 2 byte. Block offset
 
 
 
-<a name=".HObject"/>
+<a name=".Module"/>
 
-### HObject
-Holon Object File
+### Module
+Holon Module
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | name | [string](#string) |  |  |
-| major_version | [int64](#int64) |  |  |
-| minor_version | [int64](#int64) |  |  |
 | entry_point | [fixed64](#fixed64) |  |  |
 | local_offset | [fixed64](#fixed64) |  |  |
-| imports | [HObject.ImportsEntry](#HObject.ImportsEntry) | repeated |  |
+| imports | [Module.ImportsEntry](#Module.ImportsEntry) | repeated |  |
 | caf_exports | [fixed64](#fixed64) | repeated |  |
 | code_exports | [fixed64](#fixed64) | repeated |  |
-| cafs | [Expr](#Expr) | repeated | fixed64 caf_num = 3; fixed64 table_num = 4; |
+| cafs | [Expr](#Expr) | repeated |  |
 | text | [Func](#Func) | repeated |  |
 
 
@@ -284,9 +219,9 @@ Holon Object File
 
 
 
-<a name=".HObject.ImportsEntry"/>
+<a name=".Module.ImportsEntry"/>
 
-### HObject.ImportsEntry
+### Module.ImportsEntry
 
 
 
@@ -294,6 +229,28 @@ Holon Object File
 | ----- | ---- | ----- | ----------- |
 | key | [fixed64](#fixed64) |  |  |
 | value | [Symbol](#Symbol) |  |  |
+
+
+
+
+
+
+<a name=".Package"/>
+
+### Package
+Package File
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| magic | [fixed64](#fixed64) |  |  |
+| name | [string](#string) |  |  |
+| major | [uint32](#uint32) |  | version |
+| minor | [uint32](#uint32) |  |  |
+| revision | [uint32](#uint32) |  |  |
+| build | [uint32](#uint32) |  |  |
+| deps | [string](#string) | repeated | Dependent packages |
+| modules | [Module](#Module) | repeated |  |
 
 
 
@@ -308,8 +265,8 @@ Holon Object File
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| package | [int32](#int32) |  |  |
-| module | [int32](#int32) |  |  |
+| package | [uint32](#uint32) |  |  |
+| module | [uint32](#uint32) |  |  |
 | local | [fixed64](#fixed64) |  |  |
 | name | [string](#string) |  |  |
 
