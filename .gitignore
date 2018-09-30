@@ -8,4 +8,4 @@ dist/
 /stg/
 /lib/
 
-.atom-build.yaml
+.projectile
