@@ -11,7 +11,7 @@ enum ExprType {
     INVALID = 0;
     INDIR   = 1; // Indirection
     CONSTR  = 2; // Data constructor
-    FUNC    = 4; // Function object
+    FUNC    = 4; // Function object
     THUNK_F = 6; // Thunk has a function
     THUNK_C = 7; // Thunk has a closure
     PAPPLY  = 8; // Partial apply to a function
